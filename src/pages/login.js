@@ -1,11 +1,11 @@
-import ApplicationLogo from '@/components/ApplicationLogo'
-import AuthCard from '@/components/AuthCard'
-import AuthSessionStatus from '@/components/AuthSessionStatus'
-import AuthValidationErrors from '@/components/AuthValidationErrors'
-import Button from '@/components/Button'
+import ApplicationLogo from '@/components/Utils/ApplicationLogo'
+import AuthCard from '@/components/Utils/AuthCard'
+import AuthSessionStatus from '@/components/Utils/AuthSessionStatus'
+import AuthValidationErrors from '@/components/Utils/AuthValidationErrors'
+import Button from '@/components/Utils/Button'
 import GuestLayout from '@/components/Layouts/GuestLayout'
-import Input from '@/components/Input'
-import Label from '@/components/Label'
+import Input from '@/components/Utils/Input'
+import Label from '@/components/Utils/Label'
 import Link from 'next/link'
 import { useAuth } from '@/hooks/auth'
 import { useEffect, useState } from 'react'
@@ -25,13 +25,14 @@ const Login = () => {
     const [status, setStatus] = useState(null)
 
     useEffect(() => {
+        console.log(router.query.reset)
         if (router.query.reset?.length > 0 && errors.length === 0) {
             setStatus(atob(router.query.reset))
         } else {
             setStatus(null)
         }
     })
-
+    
     const submitForm = async event => {
         event.preventDefault()
 

@@ -8,7 +8,7 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>Laravel</title>
+                <title>App</title>
             </Head>
 
             <div className="relative flex items-top justify-center min-h-screen bg-gray-100 dark:bg-gray-900 sm:items-center sm:pt-0">
@@ -73,8 +73,7 @@ export default function Home() {
 
                                 <div className="ml-12">
                                     <div className="mt-2 text-gray-600 dark:text-gray-400 text-sm">
-                                        Laravel has wonderful, thorough
-                                        documentation covering every aspect of
+                                        very aspect of
                                         the framework. Whether you are new to
                                         the framework or have previous
                                         experience with Laravel, we recommend
