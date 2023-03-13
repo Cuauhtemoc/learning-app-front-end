@@ -1,15 +1,21 @@
-const Frame = ({frameNum, bowl1, bowl2, bowl3, score}) => {
+const Frame = ({frame_num, bowl_1, bowl_2, bowl_3, score, edit, setEditMode, frameToEdit, setFrameToEdit}) => {
+    
+    const onEdit = (frame_num = null, editMode = false) => {
+        setEditMode(editMode);
+        setFrameToEdit(frame_num);
+    }
     return(
         <div className="flex flex-[2] flex-col">
-            <div className="flex justify-center flex-1 font-bold">{frameNum}</div>
-            <div className="flex justify-center flex-1  border-r border-blue-800">
-                <div className="flex flex-1 justify-center"> {frameNum != 10 && bowl1 == 10 ? "": bowl1}</div>
-                <div className="flex justify-center flex-1 border-l text-center border-b border-blue-800"> {bowl2 && bowl1 + bowl2 == 10 ? "/" : bowl2} </div>
-                <div className={`${frameNum == 10 ? "flex flex-1": "hidden"} justify-center border-l border-b border-blue-800`}> {bowl3 == 10 ?  "X": bowl3} </div>
+            <div className="flex justify-center flex-1 font-bold">{frame_num}</div>
+            <div onClick = {() => onEdit(frame_num, true)} className="flex justify-center flex-1  border-r border-blue-800">
+                <div className="flex flex-1 justify-center"> {frame_num != 10 && bowl_1 == 10 ? "": bowl_1}</div>
+                <div className="flex justify-center flex-1 border-l text-center border-b border-blue-800"> {bowl_2 && bowl_1 + bowl_2 == 10 ? "/" : bowl_2} </div>
+                <div className={`${frame_num == 10 ? "flex flex-1": "hidden"} justify-center border-l border-b border-blue-800`}> {bowl_3 == 10 ?  "X": bowl_3} </div>
             </div>
             <div className="flex flex-1 justify-center border-b border-r border-blue-800">{score}</div>
+            <div onClick={() => onEdit(null, false)} className={`${edit && frameToEdit == frame_num? "": "invisible"} flex flex-1 justify-center border border-red-800`}>Save</div>
         </div>
- 
+
     )
 
 }

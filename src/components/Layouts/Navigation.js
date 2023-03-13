@@ -38,6 +38,13 @@ const Navigation = ({ user }) => {
                                 Dashboard
                             </NavLink>
                         </div>
+                        <div className="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                            <NavLink
+                                href="/add-game"
+                                active={router.pathname === '/add-game'}>
+                                Add Game
+                            </NavLink>
+                        </div>
                     </div>
 
                     {/* Settings Dropdown */}

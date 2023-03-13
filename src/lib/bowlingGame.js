@@ -1,7 +1,6 @@
 
 //return an empty game to be filled
 export const BowlingGame = () => {
-
     const newGame = ({setGame}) => { 
         setGame([]);
         let game = [...Array(10)].map((frame, index) => {
@@ -9,17 +8,17 @@ export const BowlingGame = () => {
             //return the extra bowl for the last frame
             if(index == 9){
                 return {
-                    frameNum: index + 1,
-                    bowl1: undefined,
-                    bowl2: undefined,
-                    bowl3: undefined,
+                    frame_num: index + 1,
+                    bowl_1: undefined,
+                    bowl_2: undefined,
+                    bowl_3: undefined,
                     score: undefined
                 }
             }
             return {
-                    frameNum: index + 1,
-                    bowl1: undefined,
-                    bowl2: undefined,
+                    frame_num: index + 1,
+                    bowl_1: undefined,
+                    bowl_2: undefined,
                     score: undefined
                 }
            
@@ -27,11 +26,10 @@ export const BowlingGame = () => {
        
         return setGame(game);
     }
-
     const getFrame = ({game}) => {
         let currentFrame = 0
         for(let i = 0; i < game.length; i++){
-            if(!game[i].bowl1 || !game[i].bowl2){
+            if(game[i].bowl_1 == undefined || game[i].bowl_2 == undefined){
                 return currentFrame;
             }
             currentFrame++;
@@ -42,66 +40,89 @@ export const BowlingGame = () => {
 
     }
 
-    const setBowl = ({game, bowl, setGame, setScores, setGameOver}) => {
+    const setStrike = (frame) => {
         
-        let currentFrame = getFrame({game});
+        frame.strike = true;
+        return "X";
+    }
+
+    const setBowl = ({ frameToSet, game, bowl, setGame, setScores, setGameOver}) => {
+        
+        //if there is no frame passed, determine it based on the state of the game
+        let currentFrame = frameToSet ? frameToSet - 1 : getFrame({game});
         let frame = game[currentFrame];
-      
-        if(!frame.bowl1 ){
-            frame.bowl1 = bowl;
+    
+        //handle edit mode
+        if(frameToSet && (frame.bowl_2 || frame.bowl_3) ){
             
-            if(bowl == 10 && currentFrame != 9){
-                frame.bowl2 = "X";
-                frame.strike = true;
+            frame.bowl_1 = bowl;
+            frame.bowl_2 = bowl == 10 && frameToSet != 9 ? setStrike(frame) : undefined;
+            if(currentFrame == 9 ){ 
+                frame.bowl_3 = undefined
             }
 
         }
-        else if (!frame.bowl2) {
-            frame.bowl2 = bowl;
-            if(frame.bowl1 + frame.bowl2 == 10){
+        else if(frame.bowl_1 == undefined){
+            frame.bowl_1 = bowl;
+            
+            if(bowl == 10 && currentFrame != 9){
+                frame.bowl_2 = setStrike(frame);
+            }
+
+        }
+        else if (frame.bowl_2 == undefined) {
+            frame.bowl_2 = bowl;
+            if(frame.bowl_1 + frame.bowl_2 == 10){
                 frame.spare = true;
             }
         }
-        else if(!frame.bowl3 && (frame.bowl1 == 10 || frame.bowl1 + frame.bowl2 == 10)) {
-            frame.bowl3 = bowl;
+        else if(frame.bowl_3 == undefined && (frame.bowl_1 == 10 || frame.bowl_1 + frame.bowl_2 == 10)) {
+            frame.bowl_3 = bowl;
         }
        
-        frame.bowl2 || bowl == 10 ? setScores(10): setScores(10 - bowl);
+        frame.bowl_2 || bowl == 10 ? setScores(10): setScores(10 - bowl);
         game[currentFrame] = frame;
         setScore({game});
-        setGameOver(checkForGameEnd({bowl1: frame.bowl1, bowl2: frame.bowl2, bowl3:frame.bowl3, currentFrame}));
+        setGameOver(checkForGameEnd({bowl_1: frame.bowl_1, bowl_2: frame.bowl_2, bowl_3:frame.bowl_3, currentFrame}));
         return setGame([...game]);
     }
 
-    const checkForGameEnd = ({bowl1, bowl2, bowl3, currentFrame}) => {
+    const checkForGameEnd = ({bowl_1, bowl_2, bowl_3, currentFrame}) => {
         //frame 10 extra bowl
-        if(bowl3){
+        if(bowl_3){
             return true;
         }
         //frame 10 no spare
-        if(currentFrame == 9 && bowl1 + bowl2 < 10){
+        if(currentFrame == 9 && bowl_1 + bowl_2 < 10){
             return true
         }
         return false
     }
     const setScore = ({game}) => {
         for(let i = 0; i < game.length; i++){
-            let score = typeof(game[i].bowl2) == 'number' ? game[i].bowl1 + game[i].bowl2: null;
+            let score = typeof(game[i].bowl_2) == 'number' ? game[i].bowl_1 + game[i].bowl_2: undefined;
             let prevScore = (game[i - 1]?.score ? game[i - 1].score: 0);
-            if(score && score < 10){                
+            if(score != undefined && score < 10){     
+                console.log("frame", i);
+                console.log("prev",prevScore);           
                 game[i].score = score + (game[i - 1]?.score ? game[i - 1].score: 0);
             }
             //spare
             if(score == 10){
-                game[i].score = getSpareStrikeScore({numRolls:1,currentFrame: i, game}) ? getSpareStrikeScore({numRolls:1,currentFrame: i, game}) + prevScore: null;
+                game[i].score = getSpareStrikeScore({numRolls:1,currentFrame: i, game}) ? getSpareStrikeScore({numRolls:1,currentFrame: i, game}) + prevScore: undefined;
             }
             //strike
-            if(game[i].bowl1 == 10){
-                game[i].score =  getSpareStrikeScore({numRolls:2,currentFrame: i, game}) ? getSpareStrikeScore({numRolls:2,currentFrame: i, game}) + prevScore: null;
+            if(game[i].bowl_1 == 10){
+                game[i].score =  getSpareStrikeScore({numRolls:2,currentFrame: i, game}) ? getSpareStrikeScore({numRolls:2,currentFrame: i, game}) + prevScore: undefined;
+            }
+            if(game[i].bowl_1 + game[i].bowl_2 > 10 && i != 9){
+                game[i].bowl_1 = undefined;
+                game[i].bowl_2 = undefined;
+                game[i].score = undefined;
             }
             //last frame 
-            if(i == 9 && game[i].bowl3){
-                let score = game[i].bowl1 + game[i].bowl2 + game[i].bowl3;
+            if(i == 9 && game[i].bowl_3){
+                let score = game[i].bowl_1 + game[i].bowl_2 + game[i].bowl_3;
                 game[i].score = score + prevScore;
             }
         }
@@ -110,15 +131,16 @@ export const BowlingGame = () => {
     const getSpareStrikeScore = ({numRolls, currentFrame, game}) => {
             //spare
             if(numRolls == 1){
-                if(game[currentFrame].bowl3){
-                    return game[currentFrame].bowl3;
+                if(game[currentFrame].bowl_3 != undefined){
+                    return game[currentFrame].bowl_3;
                 }
-                return game[currentFrame + 1]?.bowl1 ? game[currentFrame].bowl1 + game[currentFrame].bowl2 + game[currentFrame + 1]?.bowl1: false;
+                
+                return game[currentFrame + 1]?.bowl_1 != undefined ? game[currentFrame].bowl_1 + game[currentFrame].bowl_2 + game[currentFrame + 1]?.bowl_1: false;
             }
             //strike
-            let bowl1 = game[currentFrame + 1]?.bowl1;
-            let bowl2 = typeof game[currentFrame + 1]?.bowl2 == 'number' ? game[currentFrame + 1]?.bowl2: game[currentFrame + 2]?.bowl1;
-            let score = bowl1 && bowl2 ? bowl1 + bowl2 + game[currentFrame].bowl1  : null;
+            let bowl_1 = game[currentFrame + 1]?.bowl_1;
+            let bowl_2 = typeof game[currentFrame + 1]?.bowl_2 == 'number' ? game[currentFrame + 1]?.bowl_2: game[currentFrame + 2]?.bowl_1;
+            let score = bowl_1 != undefined && bowl_2 != undefined ? bowl_1 + bowl_2 + game[currentFrame].bowl_1  : null;
             return score;  
     }
     

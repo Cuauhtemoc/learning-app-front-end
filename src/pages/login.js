@@ -25,7 +25,7 @@ const Login = () => {
     const [status, setStatus] = useState(null)
 
     useEffect(() => {
-        console.log(router.query.reset)
+        
         if (router.query.reset?.length > 0 && errors.length === 0) {
             setStatus(atob(router.query.reset))
         } else {
