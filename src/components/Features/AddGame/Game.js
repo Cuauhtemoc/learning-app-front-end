@@ -23,20 +23,22 @@ const Game = () => {
             newGame({setGame})
         }  
     , []);
+
     const submitForm = async (event) => {
         event.preventDefault();
         onSave({game, setStatus});
     }
     return( 
-        <form onSubmit={submitForm}>
-            <Label htmlFor="location">Email</Label>
+        <>
+        <form id="game" onSubmit={submitForm}>
+            <Label htmlFor="location">Location</Label>
             <Input
                 id="location"
                 type="location"
                 value={location}
-                className="block mt-1 w-full"
+                className="block mt-1"
                 onChange={event => setLocation(event.target.value)}
-                
+                required
                 autoFocus 
             />
                 
@@ -53,20 +55,19 @@ const Game = () => {
                 )}
             </div>
                         
-            <ScoreBoard
-                frameToSet={frameToEdit} 
-                game={game}
-                setGame={setGame}
-                setBowl={setBowl}
-                setScores={setScores}
-                setGameOver={setGameOver}
-                scores={scores}
-            />
-            <Button > Save</Button>
         </form>
-           
-
-        
+        <ScoreBoard
+               frameToSet={frameToEdit} 
+               game={game}
+               setGame={setGame}
+               setBowl={setBowl}
+               setScores={setScores}
+               setGameOver={setGameOver}
+               scores={scores}
+           />
+            <Button form='game'> Save</Button>
+        </>
+       
     )
 }
 

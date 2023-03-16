@@ -43,7 +43,7 @@ export const BowlingGame = () => {
     const setStrike = (frame) => {
         
         frame.strike = true;
-        return "X";
+        return 0;
     }
 
     const setBowl = ({ frameToSet, game, bowl, setGame, setScores, setGameOver}) => {
@@ -62,7 +62,7 @@ export const BowlingGame = () => {
             }
 
         }
-        else if(frame.bowl_1 == undefined){
+        else if(!frame.bowl_1 ){
             frame.bowl_1 = bowl;
             
             if(bowl == 10 && currentFrame != 9){
@@ -70,19 +70,19 @@ export const BowlingGame = () => {
             }
 
         }
-        else if (frame.bowl_2 == undefined) {
+        else if (!frame.bowl_2 ) {
             frame.bowl_2 = bowl;
             if(frame.bowl_1 + frame.bowl_2 == 10){
                 frame.spare = true;
             }
         }
-        else if(frame.bowl_3 == undefined && (frame.bowl_1 == 10 || frame.bowl_1 + frame.bowl_2 == 10)) {
+        else if(!frame.bowl_3  && (frame.bowl_1 == 10 || frame.bowl_1 + frame.bowl_2 == 10)) {
             frame.bowl_3 = bowl;
         }
        
         frame.bowl_2 || bowl == 10 ? setScores(10): setScores(10 - bowl);
         game[currentFrame] = frame;
-        setScore({game});
+        setScore({game, currentFrame});
         setGameOver(checkForGameEnd({bowl_1: frame.bowl_1, bowl_2: frame.bowl_2, bowl_3:frame.bowl_3, currentFrame}));
         return setGame([...game]);
     }
@@ -98,22 +98,20 @@ export const BowlingGame = () => {
         }
         return false
     }
-    const setScore = ({game}) => {
-        for(let i = 0; i < game.length; i++){
-            let score = typeof(game[i].bowl_2) == 'number' ? game[i].bowl_1 + game[i].bowl_2: undefined;
+    const setScore = ({game, currentFrame}) => {
+        for(let i = 0; i <= currentFrame; i++){
+            let score = !game[i].strike ? game[i].bowl_1 + game[i].bowl_2: undefined;
             let prevScore = (game[i - 1]?.score ? game[i - 1].score: 0);
-            if(score != undefined && score < 10){     
-                console.log("frame", i);
-                console.log("prev",prevScore);           
+            if(score < 10){          
                 game[i].score = score + (game[i - 1]?.score ? game[i - 1].score: 0);
             }
             //spare
-            if(score == 10){
-                game[i].score = getSpareStrikeScore({numRolls:1,currentFrame: i, game}) ? getSpareStrikeScore({numRolls:1,currentFrame: i, game}) + prevScore: undefined;
+            if(game[i].spare){
+                game[i].score = getSpareStrikeScore({currentFrame: i, game}) ? getSpareStrikeScore({numRolls:1,currentFrame: i, game}) + prevScore: undefined;
             }
             //strike
-            if(game[i].bowl_1 == 10){
-                game[i].score =  getSpareStrikeScore({numRolls:2,currentFrame: i, game}) ? getSpareStrikeScore({numRolls:2,currentFrame: i, game}) + prevScore: undefined;
+            if(game[i].strike ){
+                game[i].score =  getSpareStrikeScore({currentFrame: i, game, strike:game[i].strike}) ? getSpareStrikeScore({currentFrame: i, game, strike:game[i].strike}) + prevScore : undefined;
             }
             if(game[i].bowl_1 + game[i].bowl_2 > 10 && i != 9){
                 game[i].bowl_1 = undefined;
@@ -128,9 +126,9 @@ export const BowlingGame = () => {
         }
     }
 
-    const getSpareStrikeScore = ({numRolls, currentFrame, game}) => {
+    const getSpareStrikeScore = ({ currentFrame, game, strike}) => {
             //spare
-            if(numRolls == 1){
+            if(!strike){
                 if(game[currentFrame].bowl_3 != undefined){
                     return game[currentFrame].bowl_3;
                 }
@@ -139,8 +137,9 @@ export const BowlingGame = () => {
             }
             //strike
             let bowl_1 = game[currentFrame + 1]?.bowl_1;
-            let bowl_2 = typeof game[currentFrame + 1]?.bowl_2 == 'number' ? game[currentFrame + 1]?.bowl_2: game[currentFrame + 2]?.bowl_1;
-            let score = bowl_1 != undefined && bowl_2 != undefined ? bowl_1 + bowl_2 + game[currentFrame].bowl_1  : null;
+            let bowl_2 = !strike ? game[currentFrame + 1]?.bowl_2: game[currentFrame + 2]?.bowl_1;
+            
+            let score = bowl_1  && bowl_2  ? bowl_1 + bowl_2 + game[currentFrame].bowl_1  : null;
             return score;  
     }
     
